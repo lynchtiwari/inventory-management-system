@@ -40,7 +40,7 @@ public class UnitBean {
 	public void setCategoryId(String categoryId) {
 		this.categoryId = categoryId;
 	}
-
+	
 	@Override
 	public String toString() {
 		return "UnitBean [unitId=" + unitId + ", unitName=" + unitName + "categoryId" + categoryId +  "]";

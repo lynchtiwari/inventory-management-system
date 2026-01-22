@@ -45,6 +45,28 @@ public class ReportsDAOImpl implements ReportsDAO {
 	 */
 	@Override
 	public List<PurchaseBean> getVendorPurchaseReport(Date from, Date to, String vendorName) {
-		return null;
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		List<PurchaseBean> beans = new ArrayList<>();
+		Query query = entityManager.createQuery(
+				"SELECT p FROM PurchaseEntity p WHERE p.vendorName = :vendorName AND p.purchaseDate BETWEEN :from AND :to",
+				 PurchaseEntity.class);
+		query.setParameter("vendorName", vendorName);
+		query.setParameter("from", from);
+		query.setParameter("to", to);
+		
+		List<PurchaseEntity> results = query.getResultList();
+		
+		for(PurchaseEntity entity : results) {
+			PurchaseBean bean = new PurchaseBean();
+			bean.setPurchaseId(entity.getPurchaseId());
+			bean.setTransactionId(entity.getTransactionId());
+			bean.setVendorName(entity.getVendorName());
+			bean.setPurchaseAmount(entity.getPurchaseAmount());
+			bean.setPurchaseDate(entity.getPurchaseDate());
+			
+			beans.add(bean);
+		}
+		entityManager.close();
+		return beans;
 	}
 }

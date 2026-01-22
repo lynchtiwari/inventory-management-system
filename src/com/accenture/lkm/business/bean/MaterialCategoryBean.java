@@ -1,7 +1,6 @@
 package com.accenture.lkm.business.bean;
 
 public class MaterialCategoryBean{
-
 	private String categoryId;
 	private String categoryName;
 	public MaterialCategoryBean() {
@@ -26,6 +25,6 @@ public class MaterialCategoryBean{
 	}
 	@Override
 	public String toString() {
-		return "MaterialCategoryBean [categoryId=" + categoryId + ", categoryName=" + categoryName + "]";
+		return "MaterialCategoryBean [categoryId= " + categoryId + ", categoryName=" + categoryName + "]";
 	}
 }

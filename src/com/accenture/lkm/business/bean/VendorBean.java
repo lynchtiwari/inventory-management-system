@@ -48,6 +48,7 @@ public class VendorBean {
 	public void setVendorName(String vendorName) {
 		this.vendorName = vendorName;
 	}
+	
 	@Override
 	public String toString() {
 		return "VendorBean [vendorId=" + vendorId + ", vendorName=" + vendorName + ", vendorAddress=" + vendorAddress
