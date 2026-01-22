@@ -1,0 +1,33 @@
+package com.accenture.lkm.dao;
+
+import org.apache.log4j.Logger;
+import org.springframework.stereotype.Repository;
+
+import com.accenture.lkm.entity.PurchaseEntity;
+
+/**
+ * <br/>
+ * CLASS DESCRIPTION: <br/>
+ * Implementation class for PurchaseDAO to perform the CRUD operation on
+ * Purchase table <br/>
+ *
+ */
+@Repository
+public class PurchaseDAOImpl implements PurchaseDAO {
+	private static Logger LOGGER = Logger.getLogger(PurchaseDAOImpl.class);
+
+	// Auto wire EntityManagerFactory here
+
+	/*
+	 * This method inserts the Purchase Data into the Purchase table.
+	 * 
+	 * @param purchaseEntity
+	 * 
+	 * @return PurchaseEntity
+	 */
+	@Override
+	public PurchaseEntity savePurchaseDetail(PurchaseEntity purchaseEntity) throws Exception {
+		return null;
+	}
+
+}
