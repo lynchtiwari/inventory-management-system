@@ -1,5 +1,7 @@
 package com.accenture.lkm.web.client;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +48,19 @@ public class MaterialCategoryConsumer {
 	 * @throws MicroServiceException
 	 */
 	private void hitGetMaterialCategories() throws MicroServiceException {
+		try {
+			MaterialCategoryBean[] response =
+				restTemplate.getForObject(serviceURL + apiURL, MaterialCategoryBean[].class);
 
+			materialCategoryBeanList = Arrays.asList(response);
+			categoryMap = new HashMap<>();
+
+			for (MaterialCategoryBean b : materialCategoryBeanList) {
+				categoryMap.put(b.getCategoryId(), b.getCategoryName());
+			}
+		} catch (Exception e) {
+			throw new MicroServiceException();
+		}
 	}
 
 	/**
@@ -57,8 +71,16 @@ public class MaterialCategoryConsumer {
 	 * @return MaterialCategoryBean
 	 * @throws MicroServiceException
 	 */
-	public MaterialCategoryBean hitGetMaterialCategoryById(String categoryId) throws MicroServiceException {
-		return null;
+	public MaterialCategoryBean hitGetMaterialCategoryById(String categoryId)
+			throws MicroServiceException {
+		try {
+			return restTemplate.getForObject(
+				serviceURL + apiURLForById + "/" + categoryId,
+				MaterialCategoryBean.class
+			);
+		} catch (Exception e) {
+			throw new MicroServiceException();
+		}
 	}
 
 }

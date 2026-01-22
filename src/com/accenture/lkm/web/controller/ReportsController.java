@@ -60,14 +60,26 @@ public class ReportsController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value="report/controller/getPurchaseDetails",
-			method=RequestMethod.POST,
+	@RequestMapping(
+			value = "report/controller/getPurchaseDetails",
+			method = RequestMethod.POST,
 			consumes = MediaType.APPLICATION_JSON_VALUE,
 			produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<List<PurchaseBean>> getPurchaseDetails(@RequestBody VendorWisePurchaseReportBean bean) throws MicroServiceException
-	{
-		return null;
+	public ResponseEntity<List<PurchaseBean>> getPurchaseDetails(
+			@RequestBody VendorWisePurchaseReportBean bean) throws MicroServiceException {
+
+		LOGGER.info("Fetching purchase report for vendor: " + bean.getVendorName());
+
+		List<PurchaseBean> purchaseList =
+				reportsService.getVendorWisePurchaseDetails(
+						bean.getFromDate(),
+						bean.getToDate(),
+						bean.getVendorName()
+				);
+
+		return ResponseEntity.ok(purchaseList);
 	}
+
 		
 	
 }

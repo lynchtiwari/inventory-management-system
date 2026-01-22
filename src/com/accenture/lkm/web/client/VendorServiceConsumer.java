@@ -1,5 +1,7 @@
 package com.accenture.lkm.web.client;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +49,19 @@ public class VendorServiceConsumer {
 	 * @throws MicroServiceException
 	 */
 	private void hitGetVendorDetails() throws MicroServiceException {
+		try {
+			VendorBean[] response =
+				restTemplate.getForObject(serviceURL + apiURL, VendorBean[].class);
 
+			vendorBeanList = Arrays.asList(response);
+			vendorMap = new HashMap<>();
+
+			for (VendorBean v : vendorBeanList) {
+				vendorMap.put(v.getVendorId(), v);
+			}
+		} catch (Exception e) {
+			throw new MicroServiceException();
+		}
 	}
+
 }

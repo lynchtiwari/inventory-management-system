@@ -6,9 +6,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.accenture.lkm.business.bean.PurchaseBean;
+import com.accenture.lkm.dao.PurchaseDAO;
 import com.accenture.lkm.entity.PurchaseEntity;
 
 @Service
@@ -64,6 +66,7 @@ public class PurchaseServiceImpl implements PurchaseService {
 				               purchaseEntity.getPurchaseDate());
 		
 		purchaseEntity.setTransactionId(transactionId);
+		purchaseDAO.savePurchaseDetail(purchaseEntity);
 		
 		purchaseBean.setPurchaseId(purchaseEntity.getPurchaseId());
 		purchaseBean.setTransactionId(transactionId);

@@ -1,6 +1,10 @@
 package com.accenture.lkm.dao;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.accenture.lkm.entity.PurchaseEntity;

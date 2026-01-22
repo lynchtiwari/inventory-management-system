@@ -1,5 +1,7 @@
 package com.accenture.lkm.web.client;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -50,7 +52,19 @@ public class UnitServiceConsumer {
 	 * @throws MicroServiceException
 	 */
 	private void hitGetUnitDetails() throws MicroServiceException {
+		try {
+			UnitBean[] response =
+				restTemplate.getForObject(serviceURL + apiURL, UnitBean[].class);
 
+			unitBeanList = Arrays.asList(response);
+			unitMap = new HashMap<>();
+
+			for (UnitBean b : unitBeanList) {
+				unitMap.put(b.getUnitId(), b.getUnitName());
+			}
+		} catch (Exception e) {
+			throw new MicroServiceException();
+		}
 	}
 
 	/**
@@ -61,8 +75,18 @@ public class UnitServiceConsumer {
 	 * @return List<UnitBean>
 	 * @throws MicroServiceException
 	 */
-	public List<UnitBean> hitGetUnitsByCategoryId(String categoryId) throws MicroServiceException {
-		return null;
+	public List<UnitBean> hitGetUnitsByCategoryId(String categoryId)
+			throws MicroServiceException {
+		try {
+			UnitBean[] response =
+				restTemplate.getForObject(
+					serviceURL + apiURLByCategoryId + "/" + categoryId,
+					UnitBean[].class
+				);
+			return Arrays.asList(response);
+		} catch (Exception e) {
+			throw new MicroServiceException();
+		}
 	}
 
 }

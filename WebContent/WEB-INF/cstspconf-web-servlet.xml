@@ -12,6 +12,8 @@
 
     <!-- scanning just web related dependencies -->
 	<context:component-scan base-package="com.accenture.lkm.web" />
+	<bean id="restTemplate"
+      class="org.springframework.web.client.RestTemplate"/>
 	
 	<!--adds support for MVC annotations:
 	1. @Valid annotation for validation
