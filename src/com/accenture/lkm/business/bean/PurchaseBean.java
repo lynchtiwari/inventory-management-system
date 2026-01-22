@@ -40,7 +40,7 @@ public class PurchaseBean {
         this.vendorName = vendorName;
     }
 
-    
+    // getters and setters
 	public Integer getPurchaseId() {
 		return purchaseId;
 	}
