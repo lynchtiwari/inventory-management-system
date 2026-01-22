@@ -42,7 +42,7 @@ public class ReportsServiceImpl implements ReportsService {
 	 */
 	@Override
 	public List<PurchaseBean> getVendorWisePurchaseDetails(Date from, Date to, String vendorName) {
-		return null;
+		return reportsDAO.getVendorPurchaseReport(from, to, vendorName);
 	}
 }
 

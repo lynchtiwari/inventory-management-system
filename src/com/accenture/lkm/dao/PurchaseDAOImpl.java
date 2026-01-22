@@ -17,7 +17,8 @@ public class PurchaseDAOImpl implements PurchaseDAO {
 	private static Logger LOGGER = Logger.getLogger(PurchaseDAOImpl.class);
 
 	// Auto wire EntityManagerFactory here
-
+	@Autowired
+	private EntityManagerFactory entityManagerFactory;
 	/*
 	 * This method inserts the Purchase Data into the Purchase table.
 	 * 
@@ -27,7 +28,12 @@ public class PurchaseDAOImpl implements PurchaseDAO {
 	 */
 	@Override
 	public PurchaseEntity savePurchaseDetail(PurchaseEntity purchaseEntity) throws Exception {
-		return null;
+		EntityManager entityManager = entityManagerFactory.createEntityManager();
+		entityManager.getTransaction().begin();
+		entityManager.persist(purchaseEntity);
+		entityManager.getTransaction().commit();
+		entityManager.close();
+		return purchaseEntity;
 	}
 
 }
