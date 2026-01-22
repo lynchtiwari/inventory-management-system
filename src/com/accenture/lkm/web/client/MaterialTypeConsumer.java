@@ -16,76 +16,93 @@ import com.accenture.lkm.exceptions.MicroServiceException;
 @Service
 public class MaterialTypeConsumer {
 
-	private static Logger LOGGER = Logger.getLogger(MaterialTypeConsumer.class);
+    private static Logger LOGGER =
+            Logger.getLogger(MaterialTypeConsumer.class);
 
-	@Value("${MaterialServiceConsumer.serviceURL}")
-	private String serviceURL;
+    @Value("${MaterialServiceConsumer.serviceURL}")
+    private String serviceURL;
 
-	@Value("${MaterialTypeConsumer.apiURL}")
-	private String apiURL;
+    @Value("${MaterialTypeConsumer.apiURL}")
+    private String apiURL;
 
-	@Value("${MaterialTypeConsumer.apiURLByCategoryId}")
-	private String apiURLByCategoryId;
+    @Value("${MaterialTypeConsumer.apiURLByCategoryId}")
+    private String apiURLByCategoryId;
 
-	private RestTemplate restTemplate;
+    private RestTemplate restTemplate;
 
-	private List<MaterialTypeBean> materialTypeBeanList;
+    private List<MaterialTypeBean> materialTypeBeanList;
+    private Map<String, String> categoryTypeMap;
 
-	private Map<String, String> categoryTypeMap;
+    public MaterialTypeConsumer() {
+        this.restTemplate = new RestTemplate();
+    }
 
-	public List<MaterialTypeBean> getMaterialTypeBeanList() throws MicroServiceException {
-		return materialTypeBeanList;
-	}
+    /* ---------- PUBLIC METHODS ---------- */
 
-	public Map<String, String> getCategoryTypeMap() throws MicroServiceException {
-		return categoryTypeMap;
-	}
+    public List<MaterialTypeBean> getMaterialTypeBeanList()
+            throws MicroServiceException {
 
-	public MaterialTypeConsumer() {
-		restTemplate = new RestTemplate();
-	}
+        if (materialTypeBeanList == null) {
+            hitGetMaterialType();
+        }
+        return materialTypeBeanList;
+    }
 
-	/**
-	 * This method hits material microservice to get the list of Material type.
-	 * 
-	 * @return
-	 * @throws MicroServiceException
-	 */
-	private void hitGetMaterialType() throws MicroServiceException {
-		try {
-			MaterialTypeBean[] response =
-				restTemplate.getForObject(serviceURL + apiURL, MaterialTypeBean[].class);
+    public Map<String, String> getCategoryTypeMap()
+            throws MicroServiceException {
 
-			materialTypeBeanList =  Arrays.asList(response);
-			categoryTypeMap = new HashMap<>();
+        if (categoryTypeMap == null) {
+            hitGetMaterialType();
+        }
+        return categoryTypeMap;
+    }
 
-			for (MaterialTypeBean b : materialTypeBeanList) {
-				categoryTypeMap.put(b.getTypeId(), b.getTypeName());
-			}
-		} catch (Exception e) {
-			throw new MicroServiceException();
-		}
-	}
+    /**
+     * Types by category (used by REST controller)
+     */
+    public List<MaterialTypeBean> hitGetTypesBasedOnCategoryId(String categoryId)
+            throws MicroServiceException {
 
-	/**
-	 * This method hits material microservice to get the details of Material
-	 * type based on category id.
-	 * 
-	 * @param categoryId
-	 * @return List<MaterialTypeBean>
-	 * @throws MicroServiceException
-	 */
-	public List<MaterialTypeBean> hitGetTypesBasedOnCategoryId(String categoryId)
-			throws MicroServiceException {
-		try {
-			MaterialTypeBean[] response =
-				restTemplate.getForObject(
-					serviceURL + apiURLByCategoryId + "/" + categoryId,
-					MaterialTypeBean[].class
-				);
-			return  Arrays.asList(response);
-		} catch (Exception e) {
-			throw new MicroServiceException();
-		}
-	}
+        try {
+            String url =
+                    serviceURL + "/" + apiURLByCategoryId + "/" + categoryId;
+
+            LOGGER.info("Calling Material Type MS: " + url);
+
+            MaterialTypeBean[] response =
+                    restTemplate.getForObject(url, MaterialTypeBean[].class);
+
+            return Arrays.asList(response);
+
+        } catch (Exception e) {
+            LOGGER.error("Material Type MS call failed", e);
+            throw new MicroServiceException();
+        }
+    }
+
+    /* ---------- PRIVATE MICRO SERVICE CALL ---------- */
+
+    private void hitGetMaterialType()
+            throws MicroServiceException {
+
+        try {
+            String url = serviceURL + "/" + apiURL;
+
+            LOGGER.info("Calling Material Type MS: " + url);
+
+            MaterialTypeBean[] response =
+                    restTemplate.getForObject(url, MaterialTypeBean[].class);
+
+            materialTypeBeanList = Arrays.asList(response);
+            categoryTypeMap = new HashMap<>();
+
+            for (MaterialTypeBean b : materialTypeBeanList) {
+                categoryTypeMap.put(b.getTypeId(), b.getTypeName());
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Material Type MS call failed", e);
+            throw new MicroServiceException();
+        }
+    }
 }

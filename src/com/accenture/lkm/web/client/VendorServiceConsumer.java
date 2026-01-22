@@ -16,52 +16,70 @@ import com.accenture.lkm.exceptions.MicroServiceException;
 @Service
 public class VendorServiceConsumer {
 
-	private static Logger LOGGER = Logger.getLogger(VendorServiceConsumer.class);
+    private static Logger LOGGER =
+            Logger.getLogger(VendorServiceConsumer.class);
 
-	@Value("${VendorServiceConsumer.serviceURL}")
-	private String serviceURL;
+    @Value("${VendorServiceConsumer.serviceURL}")
+    private String serviceURL;
 
-	@Value("${VendorServiceConsumer.apiURL}")
-	private String apiURL;
+    @Value("${VendorServiceConsumer.apiURL}")
+    private String apiURL;
 
-	private List<VendorBean> vendorBeanList;
+    private List<VendorBean> vendorBeanList;
+    private Map<String, VendorBean> vendorMap;
 
-	private Map<String, VendorBean> vendorMap;
+    private RestTemplate restTemplate;
 
-	private RestTemplate restTemplate;
+    public VendorServiceConsumer() {
+        this.restTemplate = new RestTemplate();
+    }
 
-	public List<VendorBean> getVendorBeanList() throws MicroServiceException {
-		return vendorBeanList;
-	}
+    /**
+     * Public method used by REST controllers
+     */
+    public List<VendorBean> getVendorBeanList()
+            throws MicroServiceException {
 
-	public Map<String, VendorBean> getVendorMap() {
-		return vendorMap;
-	}
+        if (vendorBeanList == null) {
+            hitGetVendorDetails();
+        }
+        return vendorBeanList;
+    }
 
-	public VendorServiceConsumer() {
-		restTemplate = new RestTemplate();
-	}
+    public Map<String, VendorBean> getVendorMap()
+            throws MicroServiceException {
 
-	/**
-	 * This method is hitting vendor microservice to get the list of vendors
-	 * 
-	 * @return
-	 * @throws MicroServiceException
-	 */
-	private void hitGetVendorDetails() throws MicroServiceException {
-		try {
-			VendorBean[] response =
-				restTemplate.getForObject(serviceURL + apiURL, VendorBean[].class);
+        if (vendorMap == null) {
+            hitGetVendorDetails();
+        }
+        return vendorMap;
+    }
 
-			vendorBeanList = Arrays.asList(response);
-			vendorMap = new HashMap<>();
+    /**
+     * Calls Vendor microservice
+     */
+    private void hitGetVendorDetails()
+            throws MicroServiceException {
 
-			for (VendorBean v : vendorBeanList) {
-				vendorMap.put(v.getVendorId(), v);
-			}
-		} catch (Exception e) {
-			throw new MicroServiceException();
-		}
-	}
+        try {
+            String url = serviceURL + "/" + apiURL;
 
+            LOGGER.info("Calling Vendor MS: " + url);
+
+            VendorBean[] response =
+                    restTemplate.getForObject(
+                            url, VendorBean[].class);
+
+            vendorBeanList = Arrays.asList(response);
+            vendorMap = new HashMap<>();
+
+            for (VendorBean v : vendorBeanList) {
+                vendorMap.put(v.getVendorId(), v);
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Vendor MS call failed", e);
+            throw new MicroServiceException();
+        }
+    }
 }

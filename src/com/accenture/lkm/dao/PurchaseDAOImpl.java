@@ -34,7 +34,7 @@ public class PurchaseDAOImpl implements PurchaseDAO {
 	public PurchaseEntity savePurchaseDetail(PurchaseEntity purchaseEntity) throws Exception {
 		EntityManager entityManager = entityManagerFactory.createEntityManager();
 		entityManager.getTransaction().begin();
-		entityManager.persist(purchaseEntity);
+		purchaseEntity = entityManager.merge(purchaseEntity);
 		entityManager.getTransaction().commit();
 		entityManager.close();
 		return purchaseEntity;

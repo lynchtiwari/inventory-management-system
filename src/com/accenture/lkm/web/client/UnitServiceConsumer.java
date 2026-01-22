@@ -16,77 +16,93 @@ import com.accenture.lkm.exceptions.MicroServiceException;
 @Service
 public class UnitServiceConsumer {
 
-	private static Logger LOGGER = Logger.getLogger(UnitServiceConsumer.class);
+    private static Logger LOGGER =
+            Logger.getLogger(UnitServiceConsumer.class);
 
-	@Value("${MaterialServiceConsumer.serviceURL}")
-	private String serviceURL;
+    @Value("${MaterialServiceConsumer.serviceURL}")
+    private String serviceURL;
 
-	@Value("${UnitServiceConsumer.apiURL}")
-	private String apiURL;
+    @Value("${UnitServiceConsumer.apiURL}")
+    private String apiURL;
 
-	@Value("${UnitServiceConsumer.apiURLByCategoryId}")
-	private String apiURLByCategoryId;
+    @Value("${UnitServiceConsumer.apiURLByCategoryId}")
+    private String apiURLByCategoryId;
 
-	private List<UnitBean> unitBeanList;
+    private List<UnitBean> unitBeanList;
+    private Map<String, String> unitMap;
 
-	private Map<String, String> unitMap;
+    private RestTemplate restTemplate;
 
-	private RestTemplate restTemplate;
+    public UnitServiceConsumer() {
+        this.restTemplate = new RestTemplate();
+    }
 
-	public List<UnitBean> getUnitBeanList() throws MicroServiceException {
-		return unitBeanList;
-	}
+    /* ---------- PUBLIC METHODS ---------- */
 
-	public Map<String, String> getUnitMap() throws MicroServiceException {
-		return unitMap;
-	}
+    public List<UnitBean> getUnitBeanList()
+            throws MicroServiceException {
 
-	public UnitServiceConsumer() {
-		restTemplate = new RestTemplate();
-	}
+        if (unitBeanList == null) {
+            hitGetUnitDetails();
+        }
+        return unitBeanList;
+    }
 
-	/**
-	 * This method hits material microservice to get the list of unit.
-	 * 
-	 * @return
-	 * @throws MicroServiceException
-	 */
-	private void hitGetUnitDetails() throws MicroServiceException {
-		try {
-			UnitBean[] response =
-				restTemplate.getForObject(serviceURL + apiURL, UnitBean[].class);
+    public Map<String, String> getUnitMap()
+            throws MicroServiceException {
 
-			unitBeanList = Arrays.asList(response);
-			unitMap = new HashMap<>();
+        if (unitMap == null) {
+            hitGetUnitDetails();
+        }
+        return unitMap;
+    }
 
-			for (UnitBean b : unitBeanList) {
-				unitMap.put(b.getUnitId(), b.getUnitName());
-			}
-		} catch (Exception e) {
-			throw new MicroServiceException();
-		}
-	}
+    /**
+     * Units by category (used by REST controller)
+     */
+    public List<UnitBean> hitGetUnitsByCategoryId(String categoryId)
+            throws MicroServiceException {
 
-	/**
-	 * This method hits material microservice to get the list of unit available
-	 * for a given category id.
-	 * 
-	 * @param categoryId
-	 * @return List<UnitBean>
-	 * @throws MicroServiceException
-	 */
-	public List<UnitBean> hitGetUnitsByCategoryId(String categoryId)
-			throws MicroServiceException {
-		try {
-			UnitBean[] response =
-				restTemplate.getForObject(
-					serviceURL + apiURLByCategoryId + "/" + categoryId,
-					UnitBean[].class
-				);
-			return Arrays.asList(response);
-		} catch (Exception e) {
-			throw new MicroServiceException();
-		}
-	}
+        try {
+            String url =
+                    serviceURL + "/" + apiURLByCategoryId + "/" + categoryId;
 
+            LOGGER.info("Calling Unit MS: " + url);
+
+            UnitBean[] response =
+                    restTemplate.getForObject(url, UnitBean[].class);
+
+            return Arrays.asList(response);
+
+        } catch (Exception e) {
+            LOGGER.error("Unit MS call failed", e);
+            throw new MicroServiceException();
+        }
+    }
+
+    /* ---------- PRIVATE MICRO SERVICE CALL ---------- */
+
+    private void hitGetUnitDetails()
+            throws MicroServiceException {
+
+        try {
+            String url = serviceURL + "/" + apiURL;
+
+            LOGGER.info("Calling Unit MS: " + url);
+
+            UnitBean[] response =
+                    restTemplate.getForObject(url, UnitBean[].class);
+
+            unitBeanList = Arrays.asList(response);
+            unitMap = new HashMap<>();
+
+            for (UnitBean b : unitBeanList) {
+                unitMap.put(b.getUnitId(), b.getUnitName());
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("Unit MS call failed", e);
+            throw new MicroServiceException();
+        }
+    }
 }

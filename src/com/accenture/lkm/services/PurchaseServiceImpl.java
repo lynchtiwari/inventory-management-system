@@ -61,9 +61,10 @@ public class PurchaseServiceImpl implements PurchaseService {
 		
 		purchaseEntity = purchaseDAO.savePurchaseDetail(purchaseEntity);
 		String transactionId = transactionIdGenerator(
-				               purchaseBean.getVendorName(),
-				               purchaseBean.getMaterialCategoryName(),
-				               purchaseEntity.getPurchaseDate());
+		        purchaseBean.getVendorName(),
+		        purchaseBean.getMaterialCategoryId(), 
+		        purchaseEntity.getPurchaseDate());
+
 		
 		purchaseEntity.setTransactionId(transactionId);
 		purchaseDAO.savePurchaseDetail(purchaseEntity);
@@ -85,11 +86,25 @@ public class PurchaseServiceImpl implements PurchaseService {
 	 * @param purchaseDate
 	 * @return String
 	 */
-	private String transactionIdGenerator(String vendorName, String materialCategoryName, Date purchaseDate) {
-		LocalDate localDate = purchaseDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMddyyyy");
-		return "P_" + vendorName.substring(0, 3).toUpperCase() + "_" + localDate.format(formatter)
-		+ "_" + materialCategoryName.substring(0,3).toUpperCase();
+	private String transactionIdGenerator(
+	        String vendorName,
+	        String materialCategoryId,
+	        Date purchaseDate) {
+
+	    LocalDate localDate = purchaseDate.toInstant()
+	            .atZone(ZoneId.systemDefault())
+	            .toLocalDate();
+
+	    DateTimeFormatter formatter =
+	            DateTimeFormatter.ofPattern("MMddyyyy");
+
+	    return "P_"
+	            + vendorName.substring(0, Math.min(3, vendorName.length())).toUpperCase()
+	            + "_"
+	            + localDate.format(formatter)
+	            + "_"
+	            + materialCategoryId.substring(0, Math.min(3, materialCategoryId.length())).toUpperCase();
 	}
+
 
 }

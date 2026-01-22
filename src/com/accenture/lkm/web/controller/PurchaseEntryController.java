@@ -1,22 +1,21 @@
 package com.accenture.lkm.web.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import com.accenture.lkm.business.bean.MaterialCategoryBean;
+import com.accenture.lkm.business.bean.MaterialTypeBean;
 import com.accenture.lkm.business.bean.PurchaseBean;
+import com.accenture.lkm.business.bean.UnitBean;
 import com.accenture.lkm.business.bean.VendorBean;
 import com.accenture.lkm.exceptions.MicroServiceException;
 import com.accenture.lkm.services.PurchaseService;
@@ -25,99 +24,78 @@ import com.accenture.lkm.web.client.MaterialTypeConsumer;
 import com.accenture.lkm.web.client.UnitServiceConsumer;
 import com.accenture.lkm.web.client.VendorServiceConsumer;
 
-@Controller
-@CrossOrigin(origins="http://localhost:3000")
+@RestController
+@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("/api/IMS")
 public class PurchaseEntryController {
 
-	private static Logger LOGGER = Logger.getLogger(PurchaseEntryController.class);
+    private static Logger LOGGER =
+            Logger.getLogger(PurchaseEntryController.class);
 
-	@Autowired
-	private PurchaseService purchaseService;
+    @Autowired
+    private PurchaseService purchaseService;
 
-	@Autowired
-	private VendorServiceConsumer vendorServiceConsumer;
+    @Autowired
+    private VendorServiceConsumer vendorServiceConsumer;
 
-	@Autowired
-	private MaterialCategoryConsumer materialCategoryConsumer;
+    @Autowired
+    private MaterialCategoryConsumer materialCategoryConsumer;
 
-	@Autowired
-	private UnitServiceConsumer unitServiceConsumer;
+    @Autowired
+    private UnitServiceConsumer unitServiceConsumer;
 
-	@Autowired
-	private MaterialTypeConsumer materialTypeConsumer;
+    @Autowired
+    private MaterialTypeConsumer materialTypeConsumer;
 
-	/**
-	 * Load Purchase Entry Page
-	 */
-	@RequestMapping(value = "/api/IMS/purchaseentry/all", method = RequestMethod.GET)
-	public ModelAndView purchaseEntry() {
+    /* ---------------- VENDORS ---------------- */
 
-		LOGGER.info("Loading Purchase Entry Page");
+    @GetMapping("/vendors")
+    public List<VendorBean> getVendors()
+            throws MicroServiceException {
+        return vendorServiceConsumer.getVendorBeanList();
+    }
 
-		ModelAndView mav = new ModelAndView("PurchaseEntry");
-		mav.addObject("purchaseBean", new PurchaseBean());
+    /* ---------------- CATEGORIES ---------------- */
 
-		return mav;
-	}
+    @GetMapping("/categories")
+    public List<MaterialCategoryBean> getCategories()
+            throws MicroServiceException {
+        return materialCategoryConsumer.getMaterialCategoryBeanList();
+    }
 
-	/**
-	 * Vendor dropdown
-	 */
-	@ModelAttribute("vendorList")
-	public List<VendorBean> generateVendorList() throws MicroServiceException {
-		return vendorServiceConsumer.getVendorBeanList();
-	}
+    /* ---------------- UNITS & TYPES ---------------- */
 
-	/**
-	 * Category dropdown
-	 */
-	@ModelAttribute("categoryList")
-	public List<MaterialCategoryBean> generateCategoryList() throws MicroServiceException {
-		return materialCategoryConsumer.getMaterialCategoryBeanList();
-	}
+    @GetMapping("/units-types/{categoryId}")
+    public Map<String, Object> getUnitsAndTypes(
+            @PathVariable String categoryId)
+            throws MicroServiceException {
 
-	/**
-	 * Load Unit & Type based on Category
-	 */
-	@RequestMapping(value = "/api/IMS/getUnitAndTypeList", method = RequestMethod.POST)
-	public ModelAndView generateUnitAndTypeList(
-			@ModelAttribute("purchaseBean") PurchaseBean purchaseBean)
-			throws MicroServiceException {
+        Map<String, Object> response = new HashMap<>();
 
-		LOGGER.info("Fetching Units & Types");
+        List<UnitBean> units =
+                unitServiceConsumer.hitGetUnitsByCategoryId(categoryId);
 
-		ModelAndView mav = new ModelAndView("PurchaseEntry");
+        List<MaterialTypeBean> types =
+                materialTypeConsumer.hitGetTypesBasedOnCategoryId(categoryId);
 
-		mav.addObject("purchaseBean", purchaseBean);
-		mav.addObject("unitList",
-				unitServiceConsumer.hitGetUnitsByCategoryId(purchaseBean.getMaterialCategoryId()));
-		mav.addObject("typeList",
-				materialTypeConsumer.hitGetTypesBasedOnCategoryId(purchaseBean.getMaterialCategoryId()));
+        response.put("units", units);
+        response.put("types", types);
 
-		return mav;
-	}
+        return response;
+    }
 
-	/**
-	 * Submit Purchase
-	 */
-	@RequestMapping(value = "/api/IMS/addPurchaseDetail/create", method = RequestMethod.POST)
-	public ModelAndView addPurchaseDetail(
-			@ModelAttribute("purchaseBean") @Valid PurchaseBean purchaseBean,
-			BindingResult result,
-			ModelMap map) throws Exception {
+    /* ---------------- CREATE PURCHASE ---------------- */
 
-		LOGGER.info("Submitting Purchase");
+    @PostMapping("/purchase")
+    public ResponseEntity<PurchaseBean> createPurchase(
+            @RequestBody @Valid PurchaseBean purchaseBean)
+            throws Exception {
 
-		if (result.hasErrors()) {
-			LOGGER.error("Validation errors");
-			return new ModelAndView("PurchaseEntry");
-		}
+        LOGGER.info("Creating purchase via REST");
 
-		PurchaseBean savedBean = purchaseService.addPurchaseDetails(purchaseBean);
+        PurchaseBean saved =
+                purchaseService.addPurchaseDetails(purchaseBean);
 
-		ModelAndView mav = new ModelAndView("PurchaseSuccess");
-		mav.addObject("purchaseBean", savedBean);
-
-		return mav;
-	}
+        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    }
 }

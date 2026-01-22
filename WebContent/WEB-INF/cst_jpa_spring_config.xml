@@ -45,10 +45,27 @@
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
 				<property name="showSql" value="true" />
 				<property name="generateDdl" value="true" />
-				<property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect" />
+				
 			</bean>
 		</property>
 		<property name="packagesToScan" value="com.accenture.lkm.entity"></property>
+		
+		<property name="jpaProperties">
+        <props>
+            <!-- 🔥 REQUIRED -->
+            <prop key="hibernate.dialect">
+                org.hibernate.dialect.MySQL8Dialect
+            </prop>
+
+            <!-- 🔥 THIS CREATES THE TABLE -->
+            <prop key="hibernate.hbm2ddl.auto">
+                update
+            </prop>
+
+            <prop key="hibernate.show_sql">true</prop>
+            <prop key="hibernate.format_sql">true</prop>
+        </props>
+    </property>
 	</bean>
 	
 	<bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager"> <!--  custom transaction Manager -->

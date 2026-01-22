@@ -33,13 +33,6 @@
 	<mvc:resources location="/resources/css/" mapping="/resources/css/**"></mvc:resources>
 	<mvc:resources location="/resources/js/" mapping="/resources/js/**"></mvc:resources>
 	<!-- View Resolver to resolve the views from a custom location -->
-	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
-		<property name="prefix">
-			<value>/WEB-INF/jspViews/</value>
-		</property>
-		<property name="suffix">
-			<value>.jsp</value>
-		</property>
-	</bean>
+	
  
 </beans>
